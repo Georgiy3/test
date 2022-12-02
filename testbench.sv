@@ -25,6 +25,7 @@ module main;
 
     initial
     begin
+        #1
         $display("Test mem:");
         startTestMem = 1;
         wait(endTestMem);
