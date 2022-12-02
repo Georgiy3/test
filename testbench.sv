@@ -22,9 +22,19 @@ module main;
     reg startTestTask = 0;
     wire endTestTask;
     testTask testTask(startTestTask, endTestTask);
+    
+    reg[5:0] test1;
+    reg[5:0] test2;
 
     initial
     begin
+        test1[2:0] = 9;
+        $diplay("%b", test1);
+        test1[5:3] = 6;
+        $display("%b", test1);
+        test2 = 6b'100110;
+        $display("%b", test2[2:0]);
+        $display("%b", test2[5:3]);
         $display("Test mem:");
         startTestMem = 1;
         wait(endTestMem);
