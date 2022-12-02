@@ -110,7 +110,8 @@ module Cache #(parameter CACHE_LINE_SIZE = 16, CACHE_SET_SIZE = 64)(
                 end
                 
                 set_tag[numSet][addr[9:4]] = addr2[13:6];
-                set_info[numSet][addr[9:4]][2:1] = 2'b10;
+                set_info[numSet][addr[9:4]][2] = 1;
+                set_info[numSet][addr[9:4]][1] = 0;
             end else #10 cahceHit += 1;
 
             if (set_info[0][addr[9:4]][2] & set_tag[0][addr[9:4]] == addr[17:10]) numSet = 0;
