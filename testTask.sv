@@ -13,6 +13,7 @@ module testTask(input start, output reg endWorkTest);
 
     wire endWork;
     reg  startWork;
+    integer t;
 
     Mem mem(m_dump, clk, reset, addr2, data2, ctrl2);
     Cache cahce(c_dump, clk, reset, addr1, data1, ctrl1, addr2, data2, ctrl2);
@@ -23,10 +24,11 @@ module testTask(input start, output reg endWorkTest);
   initial
     begin
         endWorkTest = 0; 
-        wait(start);
+        wait(start & clk);
+        t = $time;
         startWork = 1;
         wait(endWork);
-        $display("time = %0d", $time);
+        $display("time = %0d", $time - t);
         #1 c_dump = 1;
         #1 c_dump = 0;
         endWorkTest = 1;
