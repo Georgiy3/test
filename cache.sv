@@ -78,6 +78,7 @@ module Cache #(parameter CACHE_LINE_SIZE = 16, CACHE_SET_SIZE = 64)(
                     wait (!clk);
                     addr2[5:0] = addr[9:4];
                     addr2[13:6] = set_tag[numSet][addr[9:4]];
+                    $display("===addr2 = %b", addr2);
                     ctrl_read_ctrl2 = 1;
                     reg_ctrl2 = 3;
                     ctrl_read_data2 = 1;
@@ -94,6 +95,7 @@ module Cache #(parameter CACHE_LINE_SIZE = 16, CACHE_SET_SIZE = 64)(
 
                 wait(!clk);
                 addr2[13:0] = addr[17:4];
+                $display("addr2 = %b", addr2);
                 ctrl_read_ctrl2 = 1;
                 reg_ctrl2 = 2;
                 wait(clk);
