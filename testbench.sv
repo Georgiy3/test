@@ -28,6 +28,7 @@ module main;
 
     initial
     begin
+        ;dsjfhalguf==8723qrghfsgfshfgsd.liu/i
         test1[2:0] = 9;
         $diplay("%b", test1);
         test1[5:3] = 6;
