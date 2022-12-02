@@ -28,7 +28,7 @@ module Mem #(parameter CACHE_LINE_SIZE = 16, MEM_SIZE = 262144, _SEED = 225526)(
     integer SEED = _SEED;
     reg[7:0] a;
     always @(clk)
-    if (reset | $time == 0) begin
+        if (reset | $time == 1) begin
         for (i = 0; i < MEM_SIZE / CACHE_LINE_SIZE; i += 1)
         for (j = 0; j < CACHE_LINE_SIZE; j += 1) begin
             a = $random(SEED) >> 16;
