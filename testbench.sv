@@ -28,13 +28,13 @@ module main;
 
     initial
     begin
-        test1[2:0] = 9;
-        $display("test = %b", test1);
+        test1[2:0] = 1;
+        $display("test1 = %b", test1);
         test1[5:3] = 6;
         $display("test1 = %b", test1);
-        test2 = 6b'100110;
+        /*test2 = 6b'100110;
         $display("%b", test2[2:0]);
-        $display("%b", test2[5:3]);
+        $display("%b", test2[5:3]);*/
         $display("Test mem:");
         startTestMem = 1;
         wait(endTestMem);
