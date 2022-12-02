@@ -7,7 +7,6 @@ on:
   
 jobs:
   buildtest:
-    if: (github.actor == 'RonoveRaum') || (github.run_number < 16)    
     runs-on: ubuntu-22.04
 
     steps:
