@@ -39,12 +39,11 @@ module Cache #(parameter CACHE_LINE_SIZE = 16, CACHE_SET_SIZE = 64)(
 
     always @(posedge c_dump) begin
         $display("count appeal = %0d, count cache hit = %0d", appeal, cahceHit);
-        $display("Set1:");
-        for (i = 0; i < CACHE_SET_SIZE; i += 1)
+        for (i = 0; i < CACHE_SET_SIZE; i += 1) begin
+            $display("Set%0d:", i + 1);
             $display("%b %b %h", set_info[0][i], set_tag[0][i], set[0][i]);
-        $display("Set2:");
-        for (i = 0; i < CACHE_SET_SIZE; i += 1)
             $display("%b %b %h", set_info[1][i], set_tag[1][i], set[1][i]);
+        end
     end
 
     always @(clk)
