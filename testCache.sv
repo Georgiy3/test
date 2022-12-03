@@ -146,6 +146,8 @@ module testCache(input start, output reg endWork);
         $display("time = %0d, allData = %h\n", $time, allData);
         $monitor("");
 
+        $display("\nWrite to set with one valide line");
+        $display("time = %0d", $time);
         addr = 16'h0040;
         reg_ctrl = 6;
         ctrl_read_ctrl = 1;
@@ -159,11 +161,13 @@ module testCache(input start, output reg endWork);
         ctrl_read_ctrl = 0;
         ctrl_read_data = 0;
         wait((ctrl == 7) & clk);
+        $display("time = %0d", $time);
         c_dump = 1;
         #1 c_dump = 0;
         
         wait(!clk);
         wait(clk);
+        $display("\nWrite data with wirteback");
         $display("time = %0d", $time);
         addr = 16'h0080;
         reg_ctrl = 6;
@@ -185,6 +189,7 @@ module testCache(input start, output reg endWork);
         
         wait(!clk);
         wait(clk);
+        $display("Read not cached data");
         addr = 0;
         reg_ctrl = 1;
         ctrl_read_ctrl = 1;
@@ -227,7 +232,7 @@ module testCache(input start, output reg endWork);
         allData[31:16] = data;
         wait(!clk);
         wait(clk);
-        $display("time = %0d, allData = %h", $time, allData);
+        $display("time = %0d, data = %h", $time, allData);
         #1 c_dump = 1;
         #1 c_dump = 0;
 
