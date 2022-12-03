@@ -34,7 +34,7 @@ module Cache #(parameter CACHE_LINE_SIZE = 16, CACHE_SET_SIZE = 64)(
     integer j;
     integer cahceHit = 0;
     integer appeal = 0;
-    reg numSet;
+    reg numLine;
     reg[2:0] copyCtrl;
 
     always @(posedge c_dump) begin
@@ -47,7 +47,7 @@ module Cache #(parameter CACHE_LINE_SIZE = 16, CACHE_SET_SIZE = 64)(
     end
 
     always @(clk)
-        if (reset | $time == 1) begin
+    if (reset | $time == 1) begin
         for (i = 0; i < CACHE_SET_SIZE; i += 1) begin
             set_info[0][i] = 0;
             set_info[1][i] = 0;
@@ -69,19 +69,19 @@ module Cache #(parameter CACHE_LINE_SIZE = 16, CACHE_SET_SIZE = 64)(
             if ((~set_info[0][addr[9:4]][2] | set_tag[0][addr[9:4]] != addr[17:10]) &
              (~set_info[1][addr[9:4]][2] | set_tag[1][addr[9:4]] != addr[17:10])) begin
 
-                if (~set_info[0][addr[9:4]][2] | set_info[1][addr[9:4]][2] & set_info[0][addr[9:4]][0] == 0) numSet = 0;
-                else numSet=1;
+                if (~set_info[0][addr[9:4]][2] | set_info[1][addr[9:4]][2] & set_info[0][addr[9:4]][0] == 0) numLine = 0;
+                else numLine=1;
                 #6
             
-                if (set_info[numSet][addr[9:4]][2:1] == 2'b11) begin
+                if (set_info[numLine][addr[9:4]][2:1] == 2'b11) begin
                     wait (!clk);
                     addr2[5:0] = addr[9:4];
-                    addr2[13:6] = set_tag[numSet][addr[9:4]];
+                    addr2[13:6] = set_tag[numLine][addr[9:4]];
                     ctrl_read_ctrl2 = 1;
                     reg_ctrl2 = 3;
                     ctrl_read_data2 = 1;
                     for (i = 0; i < CACHE_LINE_SIZE >> 1; i += 1) begin
-                        for (j = 0; j < 16; j = j+1) reg_data2[j] = set[numSet][addr[9:4]][i*16+j];
+                        for (j = 0; j < 16; j = j+1) reg_data2[j] = set[numLine][addr[9:4]][i*16+j];
                         wait (clk);
                         wait (!clk);
                     end
@@ -99,41 +99,41 @@ module Cache #(parameter CACHE_LINE_SIZE = 16, CACHE_SET_SIZE = 64)(
                 wait(!clk);
                 ctrl_read_ctrl2 = 0;
                 wait((ctrl2 == 1) & !clk);
-                for (j = 0; j < 16; j = j+1) set[numSet][addr[9:4]][j] = data2[j];
+                for (j = 0; j < 16; j = j+1) set[numLine][addr[9:4]][j] = data2[j];
                 for (i = 1; i < CACHE_LINE_SIZE >> 1; i += 1) begin
                     wait (clk);
                     wait (!clk);
-                    for (j = 0; j < 16; j = j+1) set[numSet][addr[9:4]][i*16+j] = data2[j];
+                    for (j = 0; j < 16; j = j+1) set[numLine][addr[9:4]][i*16+j] = data2[j];
                 end
                 
-                set_tag[numSet][addr[9:4]] = addr2[13:6];
-                set_info[numSet][addr[9:4]][2:1] = 2'b10;
+                set_tag[numLine][addr[9:4]] = addr2[13:6];
+                set_info[numLine][addr[9:4]][2:1] = 2'b10;
             end else #10 cahceHit += 1;
 
-            if (set_info[0][addr[9:4]][2] & set_tag[0][addr[9:4]] == addr[17:10]) numSet = 0;
-            else numSet = 1;
-            set_info[numSet][addr[9:4]][0] = 1;
-            set_info[~numSet][addr[9:4]][0] = 0;
+            if (set_info[0][addr[9:4]][2] & set_tag[0][addr[9:4]] == addr[17:10]) numLine = 0;
+            else numLine = 1;
+            set_info[numLine][addr[9:4]][0] = 1;
+            set_info[~numLine][addr[9:4]][0] = 0;
             wait(!clk);
             reg_ctrl1 = 7;
             ctrl_read_ctrl1 = 1;
             if (copyCtrl[2]) begin
-                set_info[numSet][addr[9:4]][1] = 1;
+                set_info[numLine][addr[9:4]][1] = 1;
                 for (i = addr[3:0] * 8; i < addr[3:0] * 8 + (4 << copyCtrl[1:0]) & i < CACHE_LINE_SIZE * 8; i += 1) begin
-                    set[numSet][addr[9:4]][i] = data[i - addr[3:0] * 8];
+                    set[numLine][addr[9:4]][i] = data[i - addr[3:0] * 8];
                 end
                 wait(clk);
                 wait(!clk);
             end else begin
                 ctrl_read_data1 = 1;
                 for (i = addr[3:0] * 8; i < addr[3:0] * 8 + (8 << copyCtrl[1]) & i < CACHE_LINE_SIZE * 8; i += 1) begin
-                     reg_data1[i - addr[3:0] * 8] = set[numSet][addr[9:4]][i];
+                     reg_data1[i - addr[3:0] * 8] = set[numLine][addr[9:4]][i];
                 end
                 wait(clk);
                 wait(!clk);
                 if (copyCtrl[1:0] == 3) begin
                     for (i = addr[3:0] * 8 + 16; i < addr[3:0] * 8 + 32 & i < CACHE_LINE_SIZE * 8; i += 1) begin
-                        reg_data1[i - addr[3:0] * 8 - 16] = set[numSet][addr[9:4]][i];
+                        reg_data1[i - addr[3:0] * 8 - 16] = set[numLine][addr[9:4]][i];
                     end
                     wait(clk);
                     wait(!clk);
@@ -142,38 +142,37 @@ module Cache #(parameter CACHE_LINE_SIZE = 16, CACHE_SET_SIZE = 64)(
             end
             ctrl_read_ctrl1 = 0;
         end 
-        else if (ctrl1 == 4) begin
+        else if (copyCtrl == 4) begin
             if (set_info[0][addr[9:4]][2] & set_tag[0][addr[9:4]] == addr[17:10] |
              set_info[1][addr[9:4]][2] & set_tag[1][addr[9:4]] == addr[17:10]) begin
-                if (set_info[0][addr[9:4]][2] & set_tag[0][addr[9:4]] == addr[17:10]) numSet = 0;
-                else numSet=0;
-
-                wait(clk);
-                wait(~clk);
-                if (set_info[numSet][addr[9:4]][1] == 1) begin
-                    #4
+                if (set_info[0][addr[9:4]][2] & set_tag[0][addr[9:4]] == addr[17:10]) numLine = 0;
+                else numLine=1;
+                
+                if (set_info[numLine][addr[9:4]][2:1] == 2'b11) begin
+                    #6
                     wait (!clk);
                     addr2[5:0] = addr[9:4];
-                    addr2[13:6] = set_tag[numSet][addr[9:4]];
+                    addr2[13:6] = set_tag[numLine][addr[9:4]];
                     ctrl_read_ctrl2 = 1;
                     reg_ctrl2 = 3;
                     ctrl_read_data2 = 1;
                     for (i = 0; i < CACHE_LINE_SIZE >> 1; i += 1) begin
-                        for (j = 0; j < 16; j = j+1) reg_data2[j] = set[numSet][addr[9:4]][i*16+j];
+                        for (j = 0; j < 16; j = j+1) reg_data2[j] = set[numLine][addr[9:4]][i*16+j];
                         wait (clk);
                         wait (!clk);
                     end
                     ctrl_read_ctrl2 = 0;
                     ctrl_read_data2 = 0;
                     wait((ctrl2 == 1) & !clk);
-                end
-                set_info[numSet][addr[9:4]][2] = 0;
-                ctrl_read_ctrl1 = 1;
-                reg_ctrl1 = 7;
-                wait(clk);
-                wait(!clk);
-                ctrl_read_ctrl1 = 0;
-            end
+                end else #10;
+                set_info[numLine][addr[9:4]][2] = 0;
+            end else #10;
+            wait(!clk);
+            ctrl_read_ctrl1 = 1;
+            reg_ctrl1 = 7;
+            wait(clk);
+            wait(!clk);
+            ctrl_read_ctrl1 = 0;
         end
     end
 endmodule
