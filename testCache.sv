@@ -143,7 +143,7 @@ module testCache(input start, output reg endWork);
         allData[31:16] = data;
         wait(!clk);
         wait(clk);
-        $display("time = %0d, allData = %h\n", $time, allData);
+        $display("time = %0d, allData = %h", $time, allData);
         $monitor("");
 
         $display("\nWrite to set with one valide line");
@@ -189,7 +189,7 @@ module testCache(input start, output reg endWork);
         
         wait(!clk);
         wait(clk);
-        $display("Read not cached data");
+        $display("\nRead not cached data");
         addr = 0;
         reg_ctrl = 1;
         ctrl_read_ctrl = 1;
