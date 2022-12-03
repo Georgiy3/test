@@ -33,7 +33,6 @@ module testCache(input start, output reg endWork);
         wait(start);
         $monitor("addr = %b, data = %h, ctrl = %0d, time = %0d", addr, data, ctrl, $time);
         #1
-        $display("time = %0d", $time);
         $display("C1_WRITE8");
         wait(clk);
         $display("time = %0d", $time);
@@ -50,6 +49,7 @@ module testCache(input start, output reg endWork);
         ctrl_read_data = 0;
         wait((ctrl == 7) & clk);
         $display("time = %0d", $time);
+
         $display("\nC1_WRITE16");
         wait(!clk);
         wait(clk);
@@ -68,6 +68,7 @@ module testCache(input start, output reg endWork);
         ctrl_read_data = 0;
         wait((ctrl == 7) & clk);
         $display("time = %0d", $time);
+
         $display("\nC1_WRITE32");
         wait(!clk);
         wait(clk);
@@ -87,6 +88,7 @@ module testCache(input start, output reg endWork);
         ctrl_read_data = 0;
         wait((ctrl == 7) & clk);
         $display("time = %0d", $time);
+
         $display("\nC1_READ8");
         wait(!clk);
         wait(clk);
@@ -103,6 +105,7 @@ module testCache(input start, output reg endWork);
         wait((ctrl == 7) & clk);
         allData[55:48] = data[7:0];
         $display("time = %0d", $time);
+
         $display("\nC1_READ16");
         wait(!clk);
         wait(clk);
@@ -119,6 +122,7 @@ module testCache(input start, output reg endWork);
         wait((ctrl == 7) & clk);
         allData[47:32] = data;
         $display("time = %0d", $time);
+
         $display("\nC1_READ32");
         wait(!clk);
         wait(clk);
@@ -139,7 +143,8 @@ module testCache(input start, output reg endWork);
         allData[31:16] = data;
         wait(!clk);
         wait(clk);
-        $display("time = %0d, allData = %h", $time, allData);
+        $display("time = %0d, allData = %h\n", $time, allData);
+        $monitor("");
 
         addr = 16'h0040;
         reg_ctrl = 6;
@@ -223,6 +228,58 @@ module testCache(input start, output reg endWork);
         wait(!clk);
         wait(clk);
         $display("time = %0d, allData = %h", $time, allData);
+        #1 c_dump = 1;
+        #1 c_dump = 0;
+
+        wait(clk);
+        $display("\nC1_INVALIDATE_LINE (dirt = 1)");
+        $display("time start = %0d", $time);
+        addr = 16'h0080;
+        reg_ctrl = 4;
+        ctrl_read_ctrl = 1;
+        wait(!clk);
+        wait(clk);
+        addr = 0;
+        wait(!clk);
+        wait(clk);
+        ctrl_read_ctrl = 0;
+        wait((ctrl == 7) & clk);
+        $display("time end = %0d", $time);
+        wait(!clk);
+
+        $display("\nC1_INVALIDATE_LINE (dirt = 0)");
+        wait(clk);
+        $display("time start = %0d", $time);
+        addr = 0;
+        reg_ctrl = 4;
+        ctrl_read_ctrl = 1;
+        wait(!clk);
+        wait(clk);
+        addr = 0;
+        wait(!clk);
+        wait(clk);
+        ctrl_read_ctrl = 0;
+        wait((ctrl == 7) & clk);
+        $display("time end = %0d", $time);
+        wait(!clk);
+        
+        $display("\nC1_INVALIDATE_LINE (line is not cached)");
+        wait(clk);
+        $display("time start = %0d", $time);
+        addr = 16'h0040;
+        reg_ctrl = 4;
+        ctrl_read_ctrl = 1;
+        wait(!clk);
+        wait(clk);
+        addr = 0;
+        wait(!clk);
+        wait(clk);
+        ctrl_read_ctrl = 0;
+        wait((ctrl == 7) & clk);
+        $display("time end = %0d", $time);
+
+        #1 c_dump = 1;
+        #1 c_dump = 0;
         
         endWork = 1;
     end
