@@ -21,7 +21,6 @@ defaults:
 
 jobs:
   buildtest:
-    if: (github.actor == 'RonoveRaum') || (github.run_number < 16)   
     strategy:
       fail-fast: false
       matrix:
