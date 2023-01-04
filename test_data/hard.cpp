@@ -1,31 +1,11 @@
 ﻿#include <iostream>
 #include <omp.h>
 #include <sstream>
-#include <ctime>
 #include <fstream>
-#include <vector>
 
 using namespace std;
 
 const int COUNT_LIGHT = 256;
-
-/*int main(int count, char** args)
-{
-    int k(0);
-#pragma omp parallel
-    {
-        int kc(0);
-#pragma omp for
-        for (int i(0); i < 30; ++i) {
-            kc += i;
-        }
-        printf("%i %i %i\n", omp_get_num_threads(), omp_get_thread_num(), kc);
-#pragma omp atomic
-        k += kc;
-    }
-    std::cout << k << std::endl << clock();
-}
-//2050177040*/
 
 void otsu(unsigned char* image, int size, int res[3]) {
     int* hist = new int[COUNT_LIGHT];
