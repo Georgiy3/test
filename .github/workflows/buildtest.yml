@@ -30,8 +30,8 @@ jobs:
     timeout-minutes: 7
 
     env:
-      EXE_EXT: If ('${{ matrix.os }}' -eq 'windows-latest') {".exe"} Else {" "}
-      EXE: omp4$(If ('${{ matrix.os }}' -eq 'windows-latest') {".exe"} Else {" "})
+      EXE_EXT: If ('${{ matrix.os }}' -eq 'windows-latest') {".exe"} Else {""}
+      EXE: omp4$(If ('${{ matrix.os }}' -eq 'windows-latest') {".exe"} Else {""})
 
     steps:
       - uses: actions/checkout@v3
