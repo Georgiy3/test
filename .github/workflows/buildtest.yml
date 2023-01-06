@@ -86,6 +86,7 @@ jobs:
             exit(1)
           }
           [void](mkdir __build)
+          dir
           cd __build 
           try {
             $ErrorActionPreference = 'SilentlyContinue'
