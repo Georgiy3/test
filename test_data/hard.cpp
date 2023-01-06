@@ -2,10 +2,12 @@
 #include <omp.h>
 #include <sstream>
 #include <fstream>
+#include <cstring>
 
 using namespace std;
 
 const int COUNT_LIGHT = 256;
+const int CHUNK_SIZE = 1;
 
 void otsu(unsigned char* image, int size, int res[3]) {
     int* hist = new int[COUNT_LIGHT];
@@ -43,19 +45,24 @@ void otsu(unsigned char* image, int size, int res[3]) {
     delete[] sigma;
 }
 
-void otsu_omp(unsigned char* image, int size, int res[3]) {
+int otsu_omp(unsigned char* image, int size, int res[3]) {
+    int num_treads;
     int* hist = new int[COUNT_LIGHT];
 
     for (int i(0); i < COUNT_LIGHT; ++i) hist[i] = 0;
-#pragma omp parallel for
-    for (int i(0); i < size; ++i) {
-        int& x = hist[image[i]];
+#pragma omp parallel
+    {
+        num_treads = omp_get_num_threads();
+#pragma omp for schedule(static, CHUNK_SIZE)
+        for (int i(0); i < size; ++i) {
+            int& x = hist[image[i]];
 #pragma omp atomic
-        ++x;
+            ++x;
+        }
     }
 
     double** sigma = new double* [COUNT_LIGHT];
-#pragma omp parallel for
+#pragma omp parallel for schedule(static, CHUNK_SIZE)
     for (int i(0); i < COUNT_LIGHT; ++i) {
         sigma[i] = new double[COUNT_LIGHT - i];
         sigma[i][0] = i;
@@ -71,7 +78,7 @@ void otsu_omp(unsigned char* image, int size, int res[3]) {
     delete[] hist;
 
     double maxSig = -1;
-#pragma omp parallel for
+#pragma omp parallel for schedule(static, CHUNK_SIZE)
     for (int i(0); i < COUNT_LIGHT - 3; ++i)
         for (int j(i + 1); j < COUNT_LIGHT - 2; ++j)
             for (int k(j + 1); k < COUNT_LIGHT - 1; ++k)
@@ -88,6 +95,7 @@ void otsu_omp(unsigned char* image, int size, int res[3]) {
 
     for (int i(0); i < COUNT_LIGHT; ++i) delete[] sigma[i];
     delete[] sigma;
+    return num_treads;
 }
 
 int main(int count, char** args) {
@@ -157,16 +165,17 @@ int main(int count, char** args) {
     double time(-omp_get_wtime());
 
     int res[3];
-    if (countTread == -1)
+    if (countTread == -1) {
         otsu(image, weight * height, res);
+        cout << "Time (1 thread(s)): ";
+    }
     else {
         if(countTread) omp_set_num_threads(countTread);
-        otsu_omp(image, weight * height, res);
+        cout << "Time (" << otsu_omp(image, weight * height, res) << " thread(s)): ";
     }
 
     time += omp_get_wtime();
-    cout << "Time (" << countTread << " thread(s)): " << time * 1000 << " ms\n" 
-        << res[0] << ' ' << res[1] << ' ' << res[2] << '\n';
+    cout << time * 1000 << " ms\n" << res[0] << ' ' << res[1] << ' ' << res[2] << '\n';
     
     ofstream output(args[3]);
     output << "P5\n" << weight << ' ' << height << "\n255\n";
