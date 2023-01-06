@@ -90,6 +90,7 @@ jobs:
           try {
             $ErrorActionPreference = 'SilentlyContinue'
             pwsh -Command { ${{env.COMPILER}} ${{env.C_ARGS}} ${{env.C_FILES}} -o ${{env.EXE}} *>&1 > ${{env.BUILDLOG}} } 
+            dir
           } catch {
             Write-Output "build failed!"
           } finally {
