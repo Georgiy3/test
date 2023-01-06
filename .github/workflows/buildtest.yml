@@ -92,6 +92,7 @@ jobs:
             $ErrorActionPreference = 'SilentlyContinue'
             pwsh -Command { ${{env.COMPILER}} ${{env.C_ARGS}} ${{env.C_FILES}} -o ${{env.EXE}} *>&1 > ${{env.BUILDLOG}} } 
             ls -l
+            cat ${{env.BUILDLOG}}
           } catch {
             Write-Output "build failed!"
           } finally {
