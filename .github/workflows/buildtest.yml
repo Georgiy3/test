@@ -86,12 +86,12 @@ jobs:
             exit(1)
           }
           [void](mkdir __build)
-          dir
+          ls -l
           cd __build 
           try {
             $ErrorActionPreference = 'SilentlyContinue'
             pwsh -Command { ${{env.COMPILER}} ${{env.C_ARGS}} ${{env.C_FILES}} -o ${{env.EXE}} *>&1 > ${{env.BUILDLOG}} } 
-            dir
+            ls -l
           } catch {
             Write-Output "build failed!"
           } finally {
